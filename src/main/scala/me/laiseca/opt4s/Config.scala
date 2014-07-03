@@ -1,6 +1,32 @@
 package me.laiseca.opt4s
 
-class OptionsConfig {
+import scala.annotation.tailrec
+
+class OptionsConfig(val defs: List[OptionDef[_]]) {
+  validate()
+  
+  private def validate() {
+    def validateOption(d: OptionDef[_], pos: Int) {
+      require(d.long.isDefined || d.short.isDefined, s"Element number $pos must define either long or short name")
+    }
+    
+    @tailrec
+    def validate(defs: List[OptionDef[_]], pos: Int) {
+      defs match {
+        case d :: defsTail => {
+          validateOption(d, pos)
+          validate(defsTail, pos + 1)
+        } 
+        case List() =>
+      } 
+    }
+    
+    require(!defs.isEmpty, "Empty option list not allowed")
+    validate(defs, 1)
+  }
+}
+
+object OptionFunctions {
   def opt[T](long: String) = option[T](long, false)
   def opt[T](short: Char) = option[T](short, false)
   def opt[T](long: String, short: Char) = option[T](long,short, false)
