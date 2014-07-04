@@ -2,8 +2,10 @@ package me.laiseca.opt4s
 
 import scala.annotation.tailrec
 
-class OptionsConfig(val defs: List[OptionDef[_]]) {
+class OptionsConfig(defs: List[OptionDef[_]]) {
   validate()
+  
+  val options = toOptionsMap(defs)
   
   private def validate() {
     def validateOption(d: OptionDef[_], pos: Int) {
@@ -24,6 +26,10 @@ class OptionsConfig(val defs: List[OptionDef[_]]) {
     require(!defs.isEmpty, "Empty option list not allowed")
     validate(defs, 1)
   }
+  
+  private def toOptionsMap(defs: List[OptionDef[_]]): Map[String, OptionDef[_]] = 
+    defs.flatMap(optionDef => optionDef.options.map(opt => opt -> optionDef)).toMap
+  
 }
 
 object OptionFunctions {

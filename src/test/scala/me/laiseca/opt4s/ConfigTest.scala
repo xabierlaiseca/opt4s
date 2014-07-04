@@ -6,6 +6,8 @@ import org.scalatest.Matchers
 class OptionsConfigTest extends FlatSpec with Matchers {
   val long = "help"
   val short = 'h'
+  val longOption = "--" + long
+  val shortOption = "-" + short
   
   "OptionsConfig constructor" should "throw an exception when ampty options list is provided" in {
     an [IllegalArgumentException] should be thrownBy {
@@ -14,21 +16,30 @@ class OptionsConfigTest extends FlatSpec with Matchers {
   }
   
   it should "not fail when a list of long named options is provided" in {
-    val opts = List(OptionDef[String](long = Option(long), flag = false))
+    val optionDef = OptionDef[String](long = Option(long), flag = false)
+    val opts = List(optionDef)
     
-    new OptionsConfig(opts).defs should be (opts)
+    new OptionsConfig(opts).options should be {
+      Map(longOption -> optionDef)
+    }
   }
   
   it should "not fail when a list of short named options is provided" in {
-    val opts = List(OptionDef[String](short = Option(short), flag = false))
+    val optionDef = OptionDef[String](short = Option(short), flag = false)
+    val opts = List(optionDef)
     
-    new OptionsConfig(opts).defs should be (opts)
+    new OptionsConfig(opts).options should be {
+      Map(shortOption -> optionDef)
+    }
   }
   
   it should "not fail when a list of long & short named options is provided" in {
-    val opts = List(OptionDef[String](long = Option(long), short = Option(short), flag = false))
+    val optionDef = OptionDef[String](long = Option(long), short = Option(short), flag = false)
+    val opts = List(optionDef)
     
-    new OptionsConfig(opts).defs should be (opts)
+    new OptionsConfig(opts).options should be {
+      Map(shortOption -> optionDef, longOption -> optionDef)
+    }
   }
   
   it should "fail when an unnamed option is provided" in {
@@ -36,7 +47,7 @@ class OptionsConfigTest extends FlatSpec with Matchers {
         OptionDef[String](flag = false))
     
     val exception = intercept[IllegalArgumentException] {
-      new OptionsConfig(opts).defs should be (opts)
+      new OptionsConfig(opts)
     }
     
     exception.getMessage() should include ("Element number 2 ")
